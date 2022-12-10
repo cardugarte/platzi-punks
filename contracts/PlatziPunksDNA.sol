@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.0;
 
 contract PlatziPunksDNA {
   string[] private _accessoriesType = [
@@ -200,7 +200,16 @@ contract PlatziPunksDNA {
         "ShortHairTheCaesarSidePart"
     ];
 
-    // TODO: calculate DNA 
+//Esta funcion es determinista y no debe ser usada en produccion
+    function deterministicPseudoRamdomDNA(uint256 _tokenId, address _minter)
+        public
+        pure
+        returns (uint256) {
+            uint256 combinedParams = _tokenId + uint160(_minter);
+            bytes memory encodedParams = abi.encodePacked(combinedParams);
+            bytes32 hashedParams = keccak256(encodedParams);
+            return uint256(hashedParams);
+    }
 
     //GET ATRIBUTES
     uint8 constant ADN_SECTION_SIZE = 2;
@@ -211,12 +220,12 @@ contract PlatziPunksDNA {
         );
     }
 
-    function _getAccesoriesType(uint8 _dna) public view returns(string memory) {
+    function getAccessoriesType(uint256 _dna) public view returns(string memory) {
         uint8 dnaSection = _getDNASection(_dna, 0);
         return _accessoriesType[dnaSection % _accessoriesType.length];
       }
 
-    function _getClotheColor(uint8 _dna) public view returns(string memory) {
+    function getClotheColor(uint256 _dna) public view returns(string memory) {
         uint8 dnaSection = _getDNASection(_dna, 2);
         return _clotheColor[dnaSection % _clotheColor.length];
       }
