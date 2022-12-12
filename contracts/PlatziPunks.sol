@@ -6,10 +6,12 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 import "./PlatziPunksDNA.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract PlatziPunks is ERC721, ERC721Enumerable, PlatziPunksDNA {
   uint256 public maxSupply;
   using Counters for Counters.Counter;
+  using Strings for uint256;
   Counters.Counter private _idCounter;
   mapping(uint256 => uint256) public tokenDNA;
 
@@ -22,6 +24,7 @@ contract PlatziPunks is ERC721, ERC721Enumerable, PlatziPunksDNA {
     require(current < maxSupply, "No PlatziPunks left :(");
     tokenDNA[current] = deterministicPseudoRamdomDNA(current, msg.sender);
     _safeMint(msg.sender, current);
+    _idCounter.increment();
   }
 
   function _baseURI() internal pure override returns (string memory) {
@@ -78,11 +81,11 @@ contract PlatziPunks is ERC721, ERC721Enumerable, PlatziPunksDNA {
       uint256 dna = tokenDNA[tokenId];
       string memory image = imageByDNA(dna);
       bytes memory jsonURI = abi.encodePacked(
-            '"name" : "Platzi Punks"', 
-            tokenId,
-            '", "description" : "Randomized Avatars", "image" : ", ',
-            image,
-            '"}'
+            '{ "name": "PlatziPunks #',
+                tokenId.toString(),
+                '", "description": "Platzi Punks are randomized Avataaars stored on chain to teach DApp development on Platzi", "image": "',
+                image,
+                '"}'
         ); 
 
         return string (
